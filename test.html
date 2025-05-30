@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Quick Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        function BlogApp() {
+            const [posts, setPosts] = useState([]);
+            const [loading, setLoading] = useState(true);
+            
+            useEffect(() => {
+                fetch('http://localhost:8080/api/posts')
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('Posts data:', data);
+                        setPosts(data.data || []);
+                        setLoading(false);
+                    })
+                    .catch(err => {
+                        console.error('Error fetching posts:', err);
+                        setLoading(false);
+                    });
+            }, []);
+            
+            if (loading) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                );
+            }
+            
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    <header className="bg-white shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between items-center py-6">
+                                <h1 className="text-3xl font-bold text-gray-900">我的博客</h1>
+                                <nav className="space-x-8">
+                                    <a href="#" className="text-gray-500 hover:text-gray-900">首页</a>
+                                    <a href="#" className="text-gray-500 hover:text-gray-900">文章</a>
+                                    <a href="#" className="text-gray-500 hover:text-gray-900">关于</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </header>
+                    
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                        <div className="text-center mb-12">
+                            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                                欢迎来到我的博客
+                            </h2>
+                            <p className="text-xl text-gray-600">
+                                分享技术、生活和思考
+                            </p>
+                        </div>
+                        
+                        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                            {posts.length > 0 ? (
+                                posts.map(post => (
+                                    <article key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                                        <div className="p-6">
+                                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                                {post.title}
+                                            </h3>
+                                            <p className="text-gray-600 mb-4">
+                                                {post.summary || '暂无摘要'}
+                                            </p>
+                                            <div className="flex items-center justify-between text-sm text-gray-500">
+                                                <span>{new Date(post.created_at).toLocaleDateString('zh-CN')}</span>
+                                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                    {post.published ? '已发布' : '草稿'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                ))
+                            ) : (
+                                <div className="col-span-full text-center py-12">
+                                    <p className="text-gray-500">暂无文章</p>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                    
+                    <footer className="bg-white border-t mt-16">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            <p className="text-center text-gray-500">
+                                © 2025 我的博客. All rights reserved.
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+        
+        ReactDOM.render(<BlogApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
